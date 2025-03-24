@@ -1,16 +1,24 @@
+%% Setup
 clc
 clear
 close all
 u = symunit;
-addpath('Functions\')
-addpath('Input\')
+if ispc
+    addpath('Functions\', 'Input\');
+elseif ismac || isunix
+    addpath('Functions/', 'Input/');
+else
+    disp('Platform not supported!');
+end
 
-debug = true; %%%%%% NOTE: CHANGE TO TRUE AND SET BREAKPOINTS TO SEE FULL VISUALS
+debug = false; %%%%%% NOTE: CHANGE TO TRUE AND SET BREAKPOINTS TO SEE FULL VISUALS
+
+%% Thermal Range 
 
 %% Sun Parameters
 sun_pams = struct('R', 695700*10^3, 'surf_emis', 62.94*10^6, 'GM', 132712*10^6*10^9);
 
-%% load planets
+%% load planet table
 t_planets = readtable('Planet_Values.xlsx', ReadRowNames=true, VariableNamingRule='modify');
 for i = 1:length(t_planets.Properties.VariableNames)
     varname = t_planets.Properties.VariableNames{i};
@@ -74,11 +82,12 @@ if strcmp(gtype, 'cylinder')
     % louver epsilons
     epsilons = zeros(3, 2+numsides);
     
-    %%%%%% NO
+    %%%%% NOTE: ASSUMING RADIATOR ON THE SIDE, %%%%%
+    %%%%% CHANGE ANGLES BELOW AS NEEDED %%%%%
     % min angle where radiator can be placed at in deg
-    theta_min = 255;
+    theta_min = 270-45;
     % max angle wehre radiator can be placed at in deg (can be greater than 360)
-    theta_max = theta_min + 90;
+    theta_max = 270+45;
 
     % Matched Properties to the faces or elements
     alphas(1, 1+side_inds(theta>=mod(theta_min, 360) &...

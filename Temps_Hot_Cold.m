@@ -13,6 +13,9 @@ end
 
 debug = false; %%%%%% NOTE: CHANGE TO TRUE AND SET BREAKPOINTS TO SEE FULL VISUALS
 
+%% Thermal Range Structure
+
+
 %% Sun Parameters
 sun_pams = struct('R', 695700*10^3, 'surf_emis', 62.94*10^6, 'GM', 132712*10^6*10^9);
 
