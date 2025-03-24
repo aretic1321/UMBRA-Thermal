@@ -1,16 +1,22 @@
+%% Setup
 clc
 clear
 close all
 u = symunit;
-addpath('Functions\')
-addpath('Input\')
+if ispc
+    addpath('Functions\', 'Input\');
+elseif ismac || isunix
+    addpath('Functions/', 'Input/');
+else
+    disp('Platform not supported!');
+end
 
 debug = false; %%%%%% NOTE: CHANGE TO TRUE AND SET BREAKPOINTS TO SEE FULL VISUALS
 
 %% Sun Parameters
 sun_pams = struct('R', 695700*10^3, 'surf_emis', 62.94*10^6, 'GM', 132712*10^6*10^9);
 
-%% load planets
+%% load planet table
 t_planets = readtable('Planet_Values.xlsx', ReadRowNames=true, VariableNamingRule='modify');
 for i = 1:length(t_planets.Properties.VariableNames)
     varname = t_planets.Properties.VariableNames{i};
@@ -32,7 +38,6 @@ gtype = 'cylinder';
 x_length = 2; % m (needed for cube)
 z_length = 7; % m (not needed for cube) (height)
 y_length = 2; % m (only needed for rectangular prisim)
-face_per_side = 20; % number of faces per side length
 
 if strcmp(gtype, 'cylinder')
     %%%%% NOTE: CHANGE DIVISIONS BELOW AS NEEDED %%%%%
@@ -56,7 +61,8 @@ if strcmp(gtype, 'cylinder')
     
     % Side faces
     sideFaces = zeros(numsides, 4);
-    for i = 1:numsides
+    side_inds = 1:numsides; % side face indicies
+    for i = side_inds
         sideFaces(i,:) = [i, i+1, numsides+i+1, numsides+i];
     end
     sideFaces(numsides,:) = [numsides, 1, numsides+1, 2*numsides];
@@ -74,12 +80,21 @@ if strcmp(gtype, 'cylinder')
     % louver epsilons
     epsilons = zeros(3, 2+numsides);
     
+    %%%%% NOTE: ASSUMING RADIATOR ON THE SIDE, %%%%%
+    %%%%% CHANGE ANGLES BELOW AS NEEDED %%%%%
+    % min angle where radiator can be placed at in deg
+    theta_min = 270-45;
+    % max angle wehre radiator can be placed at in deg (can be greater than 360)
+    theta_max = 270+45;
 
-    %% TODO: FIX THE MATCHED PROPERTIES SO THE RADIATOR IS ON THE ANTI-SUN SIDE
     % Matched Properties to the faces or elements
-    alphas(1, [2 numsides+1]) = alpha_radiator;
+    alphas(1, 1+side_inds(theta>=mod(theta_min, 360) &...
+        theta<=mod(theta_max, 360))) =...
+        alpha_radiator;
     alphas_MLI = alpha_radiator;
-    epsilons(1, [2 numsides+1]) = epsilon_radiator;
+    epsilons(1, 1+side_inds(theta>=mod(theta_min, 360) &...
+        theta<=mod(theta_max, 360))) =...
+        epsilon_radiator;
     alphas(2, :) = alpha_MLI;
     epsilons(2, :) = epsilon_MLI;
     
@@ -342,7 +357,7 @@ for planet = planets
              0,         0,        1];
     
     %% Sim Set up
-    num_elements = 1000; % number of elements to get from the dynamics
+    num_elements = 600; % number of elements to get from the dynamics
     steps_act = num_elements-1; % number of steps
     
     jtim = juliandate(2000, 1, 1, 0, 0, tim-tau);
