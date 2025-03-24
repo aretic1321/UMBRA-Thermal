@@ -28,7 +28,7 @@ alpha_radiator = 0.8;
 epsilon_MLI = 0.02;
 epsilon_radiator = 0.05;
 
-gtype = 'cylinder';
+gtype = 'rectangular prisim';
 x_length = 2; % m (needed for cube)
 z_length = 7; % m (not needed for cube) (height)
 y_length = 2; % m (only needed for rectangular prisim)
@@ -461,7 +461,7 @@ for planet = planets
                     [planet_pams.pos(2), avg_sat(2)],...
                     [planet_pams.pos(3), avg_sat(3)],...
                     [250, 100],... % marker sizes
-                    [p_red p_blue p_green;... % color given to planet
+                    [0.8500 0.3250 0.0980;... % color  given to planet
                     0.5 0.5 0.5], 'filled'); % color given to satellite
                 
                 subplot(3, 1, 3)
