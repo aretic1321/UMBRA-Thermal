@@ -28,7 +28,7 @@ alpha_radiator = 0.8;
 epsilon_MLI = 0.02;
 epsilon_radiator = 0.05;
 
-gtype = 'cylinder';
+gtype = 'rectangular prisim';
 x_length = 2; % m (needed for cube)
 z_length = 7; % m (not needed for cube) (height)
 y_length = 2; % m (only needed for rectangular prisim)
@@ -107,7 +107,7 @@ elseif strcmpi(gtype, 'cube') || strcmpi(gtype, 'rectangular prisim')
         3, 4, 8, 7;  % Back face
         4, 1, 5, 8;  % Left face
     ];
-    if strcmp(gtype, 'cube')
+    if strcmp(gtype, 'rectangular prisim')
         vertices(:, 1) = x_length*vertices(:, 1);
         vertices(:, 2) = y_length*vertices(:, 2);
         vertices(:, 3) = z_length*vertices(:, 3);
@@ -161,7 +161,7 @@ view(3);  % 3D view
 % Venus, Earth, Jupiter, Uranus
 planets = ["Venus", "Uranus"];
 planet = '';
-pi = 1;
+p_i = 1;
 for planet = planets
     if isempty(planet)
         disp('No input, try again.')
@@ -204,6 +204,10 @@ for planet = planets
         %%%%%%% NOTE: to change the altitude, change it in
         %%%%%%% Planet_Values.xlsx file
 
+        p_red = t_planets{{planet}, {'RedColor'}}; % planet average red color
+        p_blue = t_planets{{planet}, {'BlueColor'}}; % planet average blue color
+        p_green = t_planets{{planet}, {'GreenColor'}}; % % planet average green color
+
         % top of atmosphere (km) (is 30 km for Earth, but assumed to be the same
         % for other planets with an atmosphere)
         TOA = 30*10^3;
@@ -214,7 +218,7 @@ for planet = planets
         % distance of planet to Sun
         r_p_mag = @(f) r_mag_elp(f, a_p, e_p);
         
-        f = linspace(0, 2*pi, 10000);
+        f = linspace(0, 2*p_i, 10000);
         f = f(1:end-1);
         R_PS_avg = mean(r_p_mag(f)); % mean distance of the planet to the sun
         
@@ -222,7 +226,7 @@ for planet = planets
         
         n = sqrt(mu_sun./a_p.^3);
         
-        tau = (omega_bar*pi/180 - lambda_0_bar*pi/180)./n; % time of perihelion passage
+        tau = (omega_bar*p_i/180 - lambda_0_bar*p_i/180)./n; % time of perihelion passage
         
         if planet_num == 7 % if Uranus
             sundist_type = 'max'; % choose the farthest distance for cold case
@@ -260,12 +264,12 @@ for planet = planets
                     disp('No input, try again.')
                 end
             end
-            f_p = f_p*pi/180;
+            f_p = f_p*p_i/180;
             tim = calc_time(f_p, mu_sun, a_p, e_p); % time after perihelion
         elseif strcmpi(sundist_type, 'min')
             tim = 0; % time after perihelion
         elseif strcmpi(sundist_type, 'max')
-            tim = calc_time(pi, mu_sun, a_p, e_p); % time after perihelion
+            tim = calc_time(p_i, mu_sun, a_p, e_p); % time after perihelion
         end
     
         auto_planet_s = '';
@@ -322,7 +326,7 @@ for planet = planets
     f_sat = 0;        % True Anomaly [deg]
     
     % orbital period of the satellite
-    T = 2*pi*sqrt((a_sat).^3./mu_p);
+    T = 2*p_i*sqrt((a_sat).^3./mu_p);
     
     % Define rotation matrices from satellite orbit frame to planet frame
     M_w_v = [cosd(w_sat), -sind(w_sat), 0;...
@@ -449,7 +453,7 @@ for planet = planets
                     [0, planet_pams.pos(3), avg_sat(3)],...
                     [500, 250, 100],... % marker sizes
                     [0.9290 0.6940 0.1250;... % color given to sun
-                    0.8500 0.3250 0.0980;... % color  given to planet
+                    p_red p_blue p_green;... % color  given to planet
                     0.5 0.5 0.5], 'filled'); % color given to satellite
                 
                 subplot(3, 1, 2)
@@ -517,18 +521,18 @@ for planet = planets
         end
         cla
     end
-    inc_S_avgs{pi} = mean(inc_S, 1);
-    inc_IR_avgs{pi} = mean(inc_IR, 1);
-    inc_A_avgs{pi} = mean(inc_A, 1);
+    inc_S_avgs{p_i} = mean(inc_S, 1);
+    inc_IR_avgs{p_i} = mean(inc_IR, 1);
+    inc_A_avgs{p_i} = mean(inc_A, 1);
     
     if strcmpi(gtype, 'cube') || strcmpi(gtype, 'rectangular prisim')
-        tab = table(inc_S_avgs{pi}.', inc_IR_avgs{pi}.', inc_A_avgs{pi}.', 'VariableNames', ...
+        tab = table(inc_S_avgs{p_i}.', inc_IR_avgs{p_i}.', inc_A_avgs{p_i}.', 'VariableNames', ...
             {'Inc. Solar', 'Inc. Albedo', 'Inc. IR'}, 'RowNames', ...
             {'Zenith-Y', 'Nadir-Y', 'A-Sun-P','Ram-R', 'Sun-P', 'A-Ram-R'});
         writetable(tab, sprintf('%s_incWs.xls', planet),'WriteRowNames', true, 'WriteVariableNames', true);
     end
     close(fig)
-    pi = pi + 1;
+    p_i = p_i + 1;
 end
 
 
