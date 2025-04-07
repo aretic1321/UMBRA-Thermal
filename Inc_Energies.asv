@@ -13,7 +13,8 @@ end
 
 debug = false; %%%%%% NOTE: CHANGE TO TRUE AND SET BREAKPOINTS TO SEE FULL VISUALS
 
-dohot = true; %%%%% NOTE: chooses whether or not to use the hot case or cold case Beta value for testing around Earth
+%% Thermal Range Structure
+
 
 %% Sun Parameters
 sun_pams = struct('R', 695700*10^3, 'surf_emis', 62.94*10^6, 'GM', 132712*10^6*10^9);
@@ -36,8 +37,8 @@ alpha_radiator = 0.8;
 epsilon_MLI = 0.02;
 epsilon_radiator = 0.05;
 
-gtype = 'cube';
-x_length = 1; % m (needed for cube)
+gtype = 'cu';
+x_length = 2; % m (needed for cube)
 z_length = 7; % m (not needed for cube) (height)
 y_length = 2; % m (only needed for rectangular prisim)
 
@@ -180,7 +181,7 @@ view(3);  % 3D view
 
 %% Planet Parameters
 % Venus, Earth, Jupiter, Uranus
-planets = ["Earth"];
+planets = ["Venus", "Uranus"];
 planet = '';
 p_i = 1;
 for planet = planets
@@ -334,12 +335,6 @@ for planet = planets
     % angle between sun and orbital plane
     if planet_num == 0 || planet_num == 7
         Beta = 0; %%%%%% Note: change as needed
-    elseif planet_num == 3
-        if dohot
-            Beta = 0;
-        else
-            Beta = 70;
-        end
     else
         Beta = 10; %%%%%% Note: change as needed
     end

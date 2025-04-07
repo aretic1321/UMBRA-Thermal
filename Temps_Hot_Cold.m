@@ -11,8 +11,6 @@ else
     disp('Platform not supported!');
 end
 
-
-
 %% make the name of the file you saved
 % choose the planets you have saved data for
 planets = ["Venus", "Uranus"];
@@ -32,5 +30,7 @@ savename = strcat(savename, "_energies");
 
 %% load the file with the energies, geometry, and thermal properties
 load(savename)
+
+%% Thermal Range Structure (TODO if using as input)
 
 %% Calculate the temperatures, size radiators, and heaters
