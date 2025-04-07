@@ -336,9 +336,9 @@ for planet = planets
         Beta = 0; %%%%%% Note: change as needed
     elseif planet_num == 3
         if dohot
-            Beta = 0;
+            Beta = 90;
         else
-            Beta = 70;
+            Beta = 0;
         end
     else
         Beta = 10; %%%%%% Note: change as needed
