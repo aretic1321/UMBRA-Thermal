@@ -4,9 +4,9 @@ clear
 close all
 u = symunit;
 if ispc
-    addpath('Functions\', 'Input\');
+    addpath('Functions\', 'Input\', 'Output\');
 elseif ismac || isunix
-    addpath('Functions/', 'Input/');
+    addpath('Functions/', 'Input/', 'Output/');
 else
     disp('Platform not supported!');
 end
@@ -556,7 +556,16 @@ for planet = planets
     close(fig)
     p_i = p_i + 1;
 end
+
+%% make the name of the file to save the data
+% creates the name of the file to save the data in
+savename = "";
 for planet = planets
-savename = planet;
-save('planet_energies', "planets", "pat",...
-    "inc_S_avgs", "inc_IR_avgs", "inc_A_avgs")
+    savename = strcat(savename, planet);
+end
+savename = strcat(savename, "_energies");
+%% save the data
+save(savename, "planets", "pat",...
+    "inc_S_avgs", "inc_IR_avgs", "inc_A_avgs",...
+    "inc_S", "inc_IR", "inc_A");
+
