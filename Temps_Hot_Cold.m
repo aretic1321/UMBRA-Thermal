@@ -163,11 +163,15 @@ colors = zeros([1 length(alphas) 3]);
 
 figure
 colors(1, :, :) = create_colors(alphas, epsilons);
-pat = patch("Faces", face_elms, "Vertices", vertices,...
+patc = patch("Faces", face_elms, "Vertices", vertices,...
     'FaceColor', 'flat', 'CData', colors, 'FaceAlpha', 1);
 %pat = patch("Faces", F, "Vertices", P, "FaceAlpha", 0.5);
-pat = updatepatchdata(pat, 'Alphas', alphas, 'Epsilons', epsilons);
-quiv = plotfacenormal(pat);
+patc = updatepatchdata(patc, 'Alphas', alphas, 'Epsilons', epsilons);
+quiv = plotfacenormal(patc);
+% makes the patch into a struct in case the figure gets deleted
+pat = struct("Faces", patc.Faces, "Vertices", patc.Vertices, "UserData",...
+    patc.UserData);
+
 % Set axis properties for better visualization
 axis equal;
 xlabel('X'); ylabel('Y'); zlabel('Z');
