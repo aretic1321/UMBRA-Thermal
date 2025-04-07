@@ -10,10 +10,21 @@ elseif ismac || isunix
 else
     disp('Platform not supported!');
 end
-%% make the name of the file you saved
-% planets you are working with
 
-savename = "";
+
+
+%% make the name of the file you saved
+% choose the planets you have saved data for
+planets = ["Venus", "Uranus"];
+% creates the path to the file
+if ispc
+    savename = "Output\";
+elseif ismac || isunix
+    savename = "Output/";
+else
+    error('Platform not supported!');
+end
+% creates the name of the file to load the data from along the path
 for planet = planets
     savename = strcat(savename, planet);
 end

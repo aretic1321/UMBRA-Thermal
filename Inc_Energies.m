@@ -8,7 +8,7 @@ if ispc
 elseif ismac || isunix
     addpath('Functions/', 'Input/', 'Output/');
 else
-    disp('Platform not supported!');
+    error('Platform not supported!');
 end
 
 debug = false; %%%%%% NOTE: CHANGE TO TRUE AND SET BREAKPOINTS TO SEE FULL VISUALS
@@ -551,19 +551,36 @@ for planet = planets
         tab = table(inc_S_avgs{p_i}.', inc_IR_avgs{p_i}.', inc_A_avgs{p_i}.', 'VariableNames', ...
             {'Inc. Solar', 'Inc. Albedo', 'Inc. IR'}, 'RowNames', ...
             {'Zenith-Y', 'Nadir-Y', 'A-Sun-P','Ram-R', 'Sun-P', 'A-Ram-R'});
-        writetable(tab, sprintf('%s_incWs.xls', planet),'WriteRowNames', true, 'WriteVariableNames', true);
+        if ispc
+            savename = "Output\";
+        elseif ismac || isunix
+            savename = "Output/";
+        else
+            error('Platform not supported!');
+        end
+        savename = strcat(savename, sprintf('%s_incWs.xls', planet));
+        writetable(tab, savename,'WriteRowNames', true, 'WriteVariableNames', true);
     end
     close(fig)
     p_i = p_i + 1;
 end
 
 %% make the name of the file to save the data
-% creates the name of the file to save the data in
-savename = "";
+% creates the path to the file
+if ispc
+    savename = "Output\";
+elseif ismac || isunix
+    savename = "Output/";
+else
+    error('Platform not supported!');
+end
+% creates the name of the file to save the data in along the path
 for planet = planets
     savename = strcat(savename, planet);
 end
 savename = strcat(savename, "_energies");
+
+
 %% save the data
 save(savename, "planets", "pat",...
     "inc_S_avgs", "inc_IR_avgs", "inc_A_avgs",...
