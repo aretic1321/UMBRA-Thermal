@@ -18,7 +18,7 @@
     % % Run test (rename 'szRadiator(...)' to 'szRadiatorTest(...)' )
     % [areaRad,areaMLI,err] = szRadiatorTest(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg);
 
-    function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg, minarea)
+    function [areaR,areaMLI,T,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg, minarea)
     % RADIATOR SIZING FUNCTION
     
     % INPUTS
@@ -68,8 +68,8 @@
 
     areaMLI = areas-areaR; % MLI area result [m2]
     
+    T = steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE);
     if err > 1e-4
-        T = steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE);
         error("Target temperature is infeasible for the current " +...
             "MLI and Radiator Properties. Achievable temperature is " +...
             "%d K, while target is %d K.", T, tgtTavg)
