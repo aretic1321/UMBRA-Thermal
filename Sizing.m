@@ -25,14 +25,17 @@ alphaRad = pat.UserData.Alphas(1,:);
 alphaMLI = pat.UserData.Alphas(2,:);
 epsRad = pat.UserData.Epsilons(1,:);
 epsMLI = pat.UserData.Epsilons(2,:);
-alphaLouv = pat.UserData.Alphas(3,:);
+alphaLouv = pat.UserData.Alphas(3, :);
 epsLouv = pat.UserData.Alphas(3, :);
 
 
 %% USER INPUTS
-powE = 0.2*2000; % Thermal power input from internals [W]
-tgtTavg = (80+273.15); % Target operating temp for each face [K]
-T_bound = -20+273.15; % Lower bound for non-operating case [K]
+upperT = (80+273.15); % upper temperature bound [K]
+lowerT = -20+273.15; % lower temperature bound [K]
+uncertainty = 10; % uncertainty of temperature [K]
+powE = 0.8*2000; % Thermal power input from internals [W] (estimated as 80% of RTG heat)
+tgtTavg = upperT-uncertainty; % Target operating temp for each face [K]
+T_bound = lowerT+uncertainty; % Lower bound for non-operating case [K]
 
 %% Run functions
 % Hot Case radiator Sizing

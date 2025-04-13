@@ -13,8 +13,12 @@ else
     disp('Platform not supported!');
 end
 
-
-
+ 
+%%%% NOTE: IF YOU WANT TO CHANGE THE BELOW STRUCT VALUES WITHOUT RUNNING
+%%%% Inc_Energies.m, USE THE FUNCTION updatepatchdata FROM THE FUNCTIONS
+%%%% FOLDER YOU CAN PASS THE UPDATED MATRIX OF ALPHAS AND EPSILONS IN AS
+%%%% PARAMETERS. ON THE OTHER HAND, YOU CAN ALSO JUST SKIP THIS AND
+%%%% WRITE OUT THE ALPHA AND EPSILON VALUES YOURSELF
 % Grab struct data for ease of use
 areas = pat.UserData.Areas;
 alphaRad = pat.UserData.Alphas(1,:);
@@ -23,17 +27,21 @@ epsRad = pat.UserData.Epsilons(1,:);
 epsMLI = pat.UserData.Epsilons(2,:);
 alphaLouv = pat.UserData.Alphas(3,:);
 epsLouv = pat.UserData.Alphas(3, :);
-%%%% NOTE: IF YOU WANT TO CHANGE THE AB
+
 
 %% USER INPUTS
-powE = 0.2*2000; % Thermal power input from internals [W]
-tgtTavg = (100+273.15); % Target operating temp for each face [K]
-T_bound = -30+273.15; % Lower bound for non-operating case [K]
+upperT = (80+273.15); % upper temperature bound [K]
+lowerT = -20+273.15; % lower temperature bound [K]
+uncertainty = 10; % upper temperature bound [K]
+powE = 0.8*2000; % Thermal power input from internals [W] (estimated as 80% of RTG heat)
+tgtTavg = (80+273.15); % Target operating temp for each face [K]
+T_bound = -10+273.15; % Lower bound for non-operating case [K]
 
 %% Run functions
 % Hot Case radiator Sizing
-[areaRad,areaMLI,err] = szRadiator(inc_S_avgs{1},inc_IR_avgs{1},inc_A_avgs{1},areas,alphaRad,alphaMLI,epsRad,epsMLI,0,tgtTavg);
+[areaRad,areaMLI,err] = szRadiator(inc_S_avgs{1},inc_IR_avgs{1},inc_A_avgs{1},areas,alphaRad,alphaMLI,epsRad,epsMLI,powE*0.5,tgtTavg);
+% assuming 50% power operations required to maintain spacecraft (should
+% change to actual value from power subsystem if they have it)
 
-
-% cold case heater sizing
-Q_htr = szHeater(inc_S_avgs{2},inc_IR_avgs{2},inc_A_avgs{2},areaRad,areas,alphaRad,alphaMLI,epsRad,epsMLI,powE,T_bound);
+% cold case heater sizing using louver data
+Q_htr = szHeater(inc_S_avgs{2},inc_IR_avgs{2},inc_A_avgs{2},areaRad,areas,alphaLouv,alphaMLI,epsLouv,epsMLI,powE,T_bound);
