@@ -18,7 +18,7 @@
     % % Run test (rename 'szRadiator(...)' to 'szRadiatorTest(...)' )
     % [areaRad,areaMLI,err] = szRadiatorTest(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg);
 
-function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg)
+    function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg, minarea)
     % RADIATOR SIZING FUNCTION
     
     % INPUTS
@@ -32,6 +32,7 @@ function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_al
     % MLI_epsilon: epsilon value of each MLI (1 vector of values)
     % pow_E: applied electrical power
     % tgt_Tavg: Desired average temperature to maintain
+    % minarea: truth value of whether to find the minimu area or maximum
     
     % OUTPUTS
     % areaRad: area of the radiator on each face (1 vector of values)
@@ -50,12 +51,17 @@ function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_al
     %}
 
     % fmincon options
-    optns = optimoptions(@fmincon,'Algorithm', 'sqp','MaxIterations',1e6,'MaxFunctionEvaluations',1e6, 'Display', 'iter');
-
-    [areaRad, fout] = fmincon(@(x) minfun(x,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg),...
+    optns = optimoptions(@fmincon,'Algorithm', 'sqp','MaxIterations',1e6,'MaxFunctionEvaluations',1e6);
+    f = @(x) minfun(x,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg,minarea);
+    problem = createOptimProblem('fmincon','x0',areaRad0,...
+        'objective',f,'lb',zeros([length(areas(alphas~=0)) 1]),'ub',areas(alphas~=0), 'options', optns);
+    [areaRad, fout] = run(GlobalSearch,problem);
+    %{
+    [areaRad, fout] = fmincon(,...
         areaRad0',... -1*diag(ones([length(areas(alphas~=0)) 1])), zeros([length(areas(alphas~=0)) 1]));
         [], [], [], [], zeros([length(areas(alphas~=0)) 1]), areas(alphas~=0));
-    err = fout - sum(areaRad);
+    %}
+    err = abs(fout) - sum(areaRad);
     % Results
     areaR = zeros([1 length(areas)]);
     areaR(alphas~=0) = areaRad';
@@ -66,7 +72,7 @@ function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_al
         T = steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE);
         error("Target temperature is infeasible for the current " +...
             "MLI and Radiator Properties. Achievable temperature is " +...
-            "%d, while target is %d.", T, tgtTavg)
+            "%d K, while target is %d K.", T, tgtTavg)
     end
 end
 
@@ -99,14 +105,18 @@ function T_err = objFunc(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsil
 end
 %}
 
-function out = minfun(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg)
+function out = minfun(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg, minarea)
     areaR = zeros([1 length(areas)]);
     areaR(alphas~=0) = areaRad';
     
     % Update MLI areas
     areaMLI = areas-areaR;
-
     out = abs(steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE)...
-        - tgtTavg)+sum(areaRad);
+            - tgtTavg);
+    if minarea
+        out = out+sum(areaRad);
+    else
+        out = out-sum(areaRad);
+    end
 end
 

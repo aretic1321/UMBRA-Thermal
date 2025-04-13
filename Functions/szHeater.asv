@@ -19,7 +19,7 @@
     % % Run test (rename 'szHeater(...)' to 'szHeaterTest(...)' )
     % Q_htr = szHeaterTest(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,T_bound);
 
-function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,T_lower,T_upper)
+function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,T_lower, T_upper)
     % HEATER SIZING FUNCTION
     
     % INPUTS
@@ -32,8 +32,7 @@ function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsi
     % MLI_alpha: alpha value of each MLI (1 vector of values)
     % epsilons: epsilon value of each RADIATOR (1 vector of values)
     % MLI_epsilon: epsilon value of each MLI (1 vector of values)
-    % T_lower: Desired average temperature to maintain (1 value) [K]
-    % T_upper: Upper temperature bound to stay under (1 value) [K]
+    % T_bound: Desired average temperature to maintain (1 value) [K]
     
     % OUTPUTS
     % Q_htr: Heat contribution from heater req'd to meet target temps [W]
@@ -53,7 +52,7 @@ function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsi
     absb_IR = inc_IR.*epsilons.*areaRad + inc_IR.*MLI_epsilon.*areaMLI; % Earth IR
     
     % Total absorbed heat [W] (per face)
-    Q_in = sum(powE) + sum(absb_IR + absb_A + absb_S);
+    Q_in = powE + sum(absb_IR + absb_A + absb_S);
     
     % Face temperature [K] (per face)
     %T = ( Q_in./(areaRad.*epsilons*boltz + areaMLI.*MLI_epsilon*boltz) ).^(1/4);
@@ -67,9 +66,8 @@ function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsi
     if Q_htr < 0
         T = steadystatetemp(areaRad, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE);
         if T > T_upper
-            error("Temperature is above upper bound by %d K without " + ...
-                "heater. Must change radiator, MLI, or louver properties.", ...
-                T_upper - T)
+            error("Temperature is above upper bound by %d K without heater. Must " + ...
+                "change radiator or louver properties.", T_upper - T)
         end
         warning("The achieved temperature " + ...
             "without the heater is " +...

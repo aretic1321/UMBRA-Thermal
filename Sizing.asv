@@ -1,14 +1,15 @@
 %% Setup
 clc
 clear
+name_output_file = 'VenusUranus_energies.mat';
 if ispc
     addpath('Functions\', 'Input\', 'Output\');
     % Load Inc_Energies.m outputs (may need to edit filename)
-    load('Output\VenusUranus_energies.mat')
+    path_to_out_file = load(strcat('Output\',name_output_file))
 elseif ismac || isunix
     addpath('Functions/', 'Input/', 'Output/');
     % Load Inc_Energies.m outputs (may need to edit filename)
-    load('Output/VenusUranus_energies.mat')
+    load(strcat('Output/',name_output_file))
 else
     disp('Platform not supported!');
 end
@@ -25,23 +26,43 @@ alphaRad = pat.UserData.Alphas(1,:);
 alphaMLI = pat.UserData.Alphas(2,:);
 epsRad = pat.UserData.Epsilons(1,:);
 epsMLI = pat.UserData.Epsilons(2,:);
-alphaLouv = pat.UserData.Alphas(3,:);
+alphaLouv = pat.UserData.Alphas(3, :);
 epsLouv = pat.UserData.Alphas(3, :);
 
+% on the other hand can edit the geometry.m script and uncomment the
+% following line
+%{
+geometry
+
+%% make the name of the file to save the data
+% creates the path to the file
+if ispc
+    savename = "Output\";
+elseif ismac || isunix
+    savename = "Output/";
+else
+    error('Platform not supported!');
+end
+% creates the name of the file to save the data in along the path
+savename = strcat(savename, gtype);
+
+%% save geometry
+save(savename, "pat");
+%}
 
 %% USER INPUTS
 upperT = (80+273.15); % upper temperature bound [K]
 lowerT = -20+273.15; % lower temperature bound [K]
-uncertainty = 10; % upper temperature bound [K]
+uncertainty = 10; % uncertainty of temperature [K]
 powE = 0.8*2000; % Thermal power input from internals [W] (estimated as 80% of RTG heat)
-tgtTavg = (80+273.15); % Target operating temp for each face [K]
-T_bound = -10+273.15; % Lower bound for non-operating case [K]
+T_upper = upperT-uncertainty; % Target operating temp [K]
+T_lower = lowerT+uncertainty; % Lower bound for non-operating case [K]
 
 %% Run functions
 % Hot Case radiator Sizing
-[areaRad,areaMLI,err] = szRadiator(inc_S_avgs{1},inc_IR_avgs{1},inc_A_avgs{1},areas,alphaRad,alphaMLI,epsRad,epsMLI,powE*0.5,tgtTavg);
+[areaRad,areaMLI,err] = szRadiator(inc_S_avgs{1},inc_IR_avgs{1},inc_A_avgs{1},areas,alphaRad,alphaMLI,epsRad,epsMLI,powE*0.5,T_upper);
 % assuming 50% power operations required to maintain spacecraft (should
 % change to actual value from power subsystem if they have it)
 
 % cold case heater sizing using louver data
-Q_htr = szHeater(inc_S_avgs{2},inc_IR_avgs{2},inc_A_avgs{2},areaRad,areas,alphaLouv,alphaMLI,epsLouv,epsMLI,powE,T_bound);
+Q_htr = szHeater(inc_S_avgs{2},inc_IR_avgs{2},inc_A_avgs{2},areaRad,areas,alphaLouv,alphaMLI,epsLouv,epsMLI,powE,T_lower, T_upper);
