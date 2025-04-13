@@ -58,7 +58,7 @@ if strcmp(gtype, 'cylinder')
     % min angle where radiator can be placed at in deg
     theta_min = 270-45;
     % max angle wehre radiator can be placed at in deg (can be greater than 360)
-    theta_max = 270+45;
+    theta_max = 270+44;
 
     % Matched Properties to the faces or elements
     alphas(1, 1+side_inds(theta>=mod(theta_min, 360) &...

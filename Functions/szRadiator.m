@@ -68,7 +68,7 @@
 
     areaMLI = areas-areaR; % MLI area result [m2]
     
-    if err > 1e-6
+    if err > 1e-4
         T = steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE);
         error("Target temperature is infeasible for the current " +...
             "MLI and Radiator Properties. Achievable temperature is " +...

@@ -95,7 +95,7 @@ for planet = planets
         % distance of planet to Sun
         r_p_mag = @(f) r_mag_elp(f, a_p, e_p);
         
-        f = linspace(0, 2*p_i, 10000);
+        f = linspace(0, 2*pi, 10000);
         f = f(1:end-1);
         R_PS_avg = mean(r_p_mag(f)); % mean distance of the planet to the sun
         
@@ -103,7 +103,7 @@ for planet = planets
         
         n = sqrt(mu_sun./a_p.^3);
         
-        tau = (omega_bar*p_i/180 - lambda_0_bar*p_i/180)./n; % time of perihelion passage
+        tau = (omega_bar*pi/180 - lambda_0_bar*pi/180)./n; % time of perihelion passage
         
         if planet_num == 7 % if Uranus
             sundist_type = 'max'; % choose the farthest distance for cold case
@@ -141,12 +141,12 @@ for planet = planets
                     disp('No input, try again.')
                 end
             end
-            f_p = f_p*p_i/180;
+            f_p = f_p*pi/180;
             tim = calc_time(f_p, mu_sun, a_p, e_p); % time after perihelion
         elseif strcmpi(sundist_type, 'min')
             tim = 0; % time after perihelion
         elseif strcmpi(sundist_type, 'max')
-            tim = calc_time(p_i, mu_sun, a_p, e_p); % time after perihelion
+            tim = calc_time(pi, mu_sun, a_p, e_p); % time after perihelion
         end
     
         auto_planet_s = '';
@@ -209,7 +209,7 @@ for planet = planets
     f_sat = 0;        % True Anomaly [deg]
     
     % orbital period of the satellite
-    T = 2*p_i*sqrt((a_sat).^3./mu_p);
+    T = 2*pi*sqrt((a_sat).^3./mu_p);
     
     % Define rotation matrices from satellite orbit frame to planet frame
     M_w_v = [cosd(w_sat), -sind(w_sat), 0;...
