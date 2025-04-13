@@ -32,12 +32,12 @@ t_planets.Properties.DimensionNames{1} = 'PlanetNames';
 %% Spacecraft Geometry and Surface Properties
 
 alpha_MLI = 0.1;
-alpha_radiator = 0.8;
+alpha_radiator = 0.15;
 epsilon_MLI = 0.02;
-epsilon_radiator = 0.05;
+epsilon_radiator = 0.8;
 
-gtype = 'cube';
-x_length = 1; % m (needed for cube)
+gtype = 'cylinder';
+x_length = 2; % m (needed for cube)
 z_length = 7; % m (not needed for cube) (height)
 y_length = 2; % m (only needed for rectangular prisim)
 
@@ -97,8 +97,15 @@ if strcmp(gtype, 'cylinder')
     epsilons(1, 1+side_inds(theta>=mod(theta_min, 360) &...
         theta<=mod(theta_max, 360))) =...
         epsilon_radiator;
+    %alphas(1, 1) = alpha_radiator; % include if you want the ends to potential have a radiator
+    %alphas(1, end) = alpha_radiator; % include if you want the ends to potential have a radiator
+    %epsilons(1, 1) = epsilon_radiator; % include if you want the ends to potential have a radiator
+    %epsilons(1, end) = epsilon_radiator; % include if you want the ends to potential have a radiator
     alphas(2, :) = alpha_MLI;
     epsilons(2, :) = epsilon_MLI;
+    
+    alphas(3, :) = alpha_radiator*0.5;
+    epsilons(3, :) = epsilon_radiator*0.5;
     
 elseif strcmpi(gtype, 'cube') || strcmpi(gtype, 'rectangular prisim')
     
@@ -180,7 +187,7 @@ view(3);  % 3D view
 
 %% Planet Parameters
 % Venus, Earth, Jupiter, Uranus
-planets = ["Earth"];
+planets = ["Venus", "Uranus"];
 planet = '';
 p_i = 1;
 for planet = planets

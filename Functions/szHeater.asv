@@ -41,7 +41,7 @@ function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsi
     %powE = powE*ones(size(areas))/length(areas);
 
     % Stephan Boltzman Constant
-    boltz = 5.67051*(10^-8);
+    boltz = 5.67051*(10^-8); 
     
     % Update MLI areas
     areaMLI = areas-areaRad;
@@ -52,7 +52,7 @@ function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsi
     absb_IR = inc_IR.*epsilons.*areaRad + inc_IR.*MLI_epsilon.*areaMLI; % Earth IR
     
     % Total absorbed heat [W] (per face)
-    Q_in = powE + sum(absb_IR + absb_A + absb_S);
+    Q_in = sum(powE + absb_IR + absb_A + absb_S);
     
     % Face temperature [K] (per face)
     %T = ( Q_in./(areaRad.*epsilons*boltz + areaMLI.*MLI_epsilon*boltz) ).^(1/4);
@@ -70,8 +70,6 @@ function Q_htr = szHeater(inc_S,inc_IR,inc_A,areaRad,areas,alphas,MLI_alpha,epsi
             "without the heater is " +...
             "%d, while target is %d. Since achieved temeprature is " + ...
             "above the lower bound, no heater is needed is " + ...
-            "achieved, no heater will be needed. Setting Heater to 0 W.", ...
-            T, T_bound)
-        Q_htr = 0;
+            "achieved, no heater will be needed. Setting Heater to ", T, T_bound)
     end
 end

@@ -18,7 +18,7 @@
     % % Run test (rename 'szRadiator(...)' to 'szRadiatorTest(...)' )
     % [areaRad,areaMLI,err] = szRadiatorTest(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg);
 
-function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg)
+function [areaRad,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg)
     % RADIATOR SIZING FUNCTION
     
     % INPUTS
@@ -52,10 +52,9 @@ function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_al
     % fmincon options
     optns = optimoptions(@fmincon,'Algorithm', 'sqp','MaxIterations',1e6,'MaxFunctionEvaluations',1e6, 'Display', 'iter');
 
-    [areaRad, fout] = fmincon(@(x) minfun(x,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg),...
+    [areaRad, err] = fmincon(@(x) minfun(x,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg),...
         areaRad0',... -1*diag(ones([length(areas(alphas~=0)) 1])), zeros([length(areas(alphas~=0)) 1]));
         [], [], [], [], zeros([length(areas(alphas~=0)) 1]), areas(alphas~=0));
-    err = fout - sum(areaRad);
     % Results
     areaR = zeros([1 length(areas)]);
     areaR(alphas~=0) = areaRad';
@@ -63,14 +62,20 @@ function [areaR,areaMLI,err] = szRadiator(inc_S,inc_IR,inc_A,areas,alphas,MLI_al
     areaMLI = areas-areaR; % MLI area result [m2]
     
     if err > 1e-6
-        T = steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE);
-        error("Target temperature is infeasible for the current " +...
-            "MLI and Radiator Properties. Achievable temperature is " +...
-            "%d, while target is %d.", T, tgtTavg)
+
+        warning("Target temperature is infeasible for the current MLI and" Radiator Properties. Achievable emperature is %d, while")
     end
 end
 
-%{
+function [areaRad, err] = recsolve(x,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg, areaMLIexp, MLIerr, optns)
+
+    if norm(err) > 1e-4
+        [areaRad,err] = fsolve(@(x) objFunc(x,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg),areaRad0,optns);
+    else
+        
+    end
+end
+
 % Objective function. Minimize T_err to zero
 function T_err = objFunc(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg)
     
@@ -97,7 +102,6 @@ function T_err = objFunc(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsil
     % Objective function: Difference between resulting temp and target temp [K]
     T_err = abs( (tgtTavg - T)./tgtTavg );
 end
-%}
 
 function out = minfun(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons,MLI_epsilon,powE,tgtTavg)
     areaR = zeros([1 length(areas)]);
@@ -107,6 +111,21 @@ function out = minfun(areaRad,inc_S,inc_IR,inc_A,areas,alphas,MLI_alpha,epsilons
     areaMLI = areas-areaR;
 
     out = abs(steadystatetemp(areaR, areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE)...
-        - tgtTavg)+sum(areaRad);
+        - tgtTavg);
 end
 
+function T = steadystatetemp(areaRad,areaMLI,inc_S,inc_IR,inc_A,alphas,MLI_alpha,epsilons,MLI_epsilon,powE)
+    % Stephan Boltzman Constant
+    boltz = 5.67051*(10^-8);
+
+    % Absorbed heat [W]
+    absb_A = inc_A.*alphas.*areaRad + inc_A.*MLI_alpha.*areaMLI; % Albedo
+    absb_S = inc_S.*alphas.*areaRad + inc_S.*MLI_alpha.*areaMLI; % Solar
+    absb_IR = inc_IR.*epsilons.*areaRad + inc_IR.*MLI_epsilon.*areaMLI; % Earth IR
+    
+    % Total absorbed heat [W]
+    Q_in = powE + sum(absb_IR + absb_A + absb_S); % Heat in [W]
+    
+    % Face temperature [K]
+    T = ( Q_in./(sum(areaRad.*epsilons*boltz + areaMLI.*MLI_epsilon*boltz)) ).^(1/4);
+end
