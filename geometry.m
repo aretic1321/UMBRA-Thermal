@@ -1,10 +1,10 @@
 %% Spacecraft Geometry and Surface Properties
 
 alpha_MLI = 0.1;
-alpha_radiator = 0.145;
+alpha_radiator = 0.28;
 alpha_louver = 0.15;
 epsilon_MLI = 0.1;
-epsilon_radiator = 0.88;
+epsilon_radiator = 0.73;
 epsilon_louver = 0.8;
 
 gtype = 'cylinder';
