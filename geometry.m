@@ -2,10 +2,10 @@
 
 alpha_MLI = 0.1;
 alpha_radiator = 0.28;
-alpha_louver = 0.15;
+alpha_louver = 0.13;
 epsilon_MLI = 0.1;
 epsilon_radiator = 0.73;
-epsilon_louver = 0.8;
+epsilon_louver = 0.14;
 
 gtype = 'cylinder';
 x_length = 2; % m (needed for cube)

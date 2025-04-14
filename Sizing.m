@@ -52,11 +52,14 @@ T_lower = lowerT+uncertainty; % Lower bound for non-operating case [K]
 
 %% Run functions
 % Hot Case radiator Sizing
-[areaRad,areaMLI,T_ss,err] = szRadiator(inc_S_avgs{1},inc_IR_avgs{1},inc_A_avgs{1},areas,alphaRad,alphaMLI,epsRad,epsMLI,powE*.90,T_upper,false);
+%[areaRad,areaMLI,T_ss,err] = szRadiator(inc_S_avgs{1},inc_IR_avgs{1},inc_A_avgs{1},areas,alphaRad,alphaMLI,epsRad,epsMLI,powE*.90,T_upper,false);
+%disp("Avg temp (hot case rad sizing): " + (T_ss-273.15) + " deg C")
 % assuming 90% power operations required to maintain spacecraft (should
 % change to actual value from power subsystem if they have it)
 
-disp("Avg temp (hot case rad sizing): " + (T_ss-273.15) + " deg C")
+% Hard-coding
+areaRad = [0 0 0 0 0 0 0 1.949051493563100 0 0];
+areaMLI = areas-areaRad;
 
 % cold case heater sizing using louver data
 Q_htr = szHeater(inc_S_avgs{2},inc_IR_avgs{2},inc_A_avgs{2},areaRad,areas,alphaLouv,alphaMLI,epsLouv,epsMLI,powE,T_lower, T_upper);
