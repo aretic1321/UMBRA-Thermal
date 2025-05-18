@@ -42,10 +42,11 @@ function [F, varargout] = ViewFac(R_s, d, phi, omega, gamma, varargin)
     addRequired(p, 'gamma')
     addParameter(p, 'psi', 90);
     addParameter(p, 'debug', false);
+    %{
     addParameter(p, 'X_sol_set',...
         table('RowNames',{'x_sol', 'y_sol', 'z_sol', 'conx', 'cony',...
         'conz'}), @(T) isempty(T) || istable(T));
-    
+    %}
     parse(p, R_s, d, phi, omega, gamma, varargin{:});
     
     R_s = p.Results.R_s;
@@ -55,9 +56,10 @@ function [F, varargout] = ViewFac(R_s, d, phi, omega, gamma, varargin)
     phi = p.Results.phi;
     gamma = p.Results.gamma;
     debug = p.Results.debug;
-    X_sol_set = p.Results.X_sol_set;
+    %X_sol_set = p.Results.X_sol_set;
 
     % forces the empty table to have a table with the correct rows
+    %{
     if isempty(X_sol_set)
         X_sol_set = table('RowNames',...
             {'x_sol', 'y_sol', 'z_sol', 'conx', 'cony', 'conz'});
@@ -65,7 +67,7 @@ function [F, varargout] = ViewFac(R_s, d, phi, omega, gamma, varargin)
         X_sol_set = table('RowNames',...
             {'x_sol', 'y_sol', 'z_sol', 'conx', 'cony', 'conz'});
     end
-
+    %}
     L3 = 0;
     
     % angle between the z axis and the tangential line from
@@ -162,7 +164,7 @@ function [F, varargout] = ViewFac(R_s, d, phi, omega, gamma, varargin)
         end
     end
     
-    varargout{1} = X_sol_set;
+    %varargout{1} = X_sol_set;
 
 
     function [X_inter, alphas, num_inter] = intersect_calc()

@@ -29,28 +29,35 @@ function [Fs, varargout] = ViewFacs2(R_s, ds, phis, omegas, gammas, varargin)
     p = inputParser;
     addParameter(p, 'psi', 90);
     addParameter(p, 'debug', false);
+    %{
     addParameter(p, 'X_sol_set',...
         table('RowNames',{'x_sol', 'y_sol', 'z_sol', 'conx', 'cony',...
         'conz'}), @(T) isempty(T) || istable(T));
-
+    %}
     parse(p, varargin{:});
 
     debug = p.Results.debug;
-    X_sol_set = p.Results.X_sol_set;
+    %X_sol_set = p.Results.X_sol_set;
 
     Fs = zeros(1, length(omegas));
-
+%{
     if isempty(X_sol_set) && exist("calc_sym_inter.mat", 'file')
         load("calc_sym_inter.mat","X_sol_set")
     else
         X_sol_set = table('RowNames',{'x_sol', 'y_sol', 'z_sol', 'conx', 'cony',...
             'conz'});
     end
+%}
     for i = 1:length(omegas)
+        %{
         [Fs(i), X_sol_set] = ViewFac(...
             R_s, ds(i), phis(i), omegas(i), gammas(i),...
             'debug', debug, 'X_sol_set', X_sol_set);
+        %}
+        [Fs(i)] = ViewFac(...
+            R_s, ds(i), phis(i), omegas(i), gammas(i),...
+            'debug', debug);
     end
     
-    varargout{1} = X_sol_set;
+    %varargout{1} = X_sol_set;
 end

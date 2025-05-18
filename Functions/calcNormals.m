@@ -29,4 +29,6 @@ function [normals, order] = calcNormals(faces, vertices, varargin)
             normals(i, :) = Ns(n_i, :);
         end
     end
+    % enforces the normals to have a length of 1
+    normals = normals./dot(normals, normals, 1).^(1/2);
 end

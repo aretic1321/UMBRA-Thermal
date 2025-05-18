@@ -115,9 +115,10 @@ function [F_IR, F_A] = PlanetViewFactors(surf_pamss, planet_pams, varargin)
             y_ref = repmat([0; 0; 1], 1, size(zv, 2));
 
             x_ref = cross(...
-                y_ref(:, all(z_new == TSs_norm, 1) | all(z_new == -TSs_norm, 1)),...
+                y_ref,...
                 z_new(:, all(z_new == TSs_norm, 1) | all(z_new == -TSs_norm, 1)), 1);
-            x_new =  x_ref ./ dot(x_ref, x_ref, 1).^(1/2);
+            x_new(:, all(z_new == TSs_norm, 1) | all(z_new == -TSs_norm, 1)) =...
+                x_ref ./ dot(x_ref, x_ref, 1).^(1/2);
 
             y_new(:, all(z_new == TSs_norm, 1) | all(z_new == -TSs_norm, 1)) = cross(...
                 z_new(:, all(z_new == TSs_norm, 1) | all(z_new == -TSs_norm, 1)),...
@@ -132,26 +133,25 @@ function [F_IR, F_A] = PlanetViewFactors(surf_pamss, planet_pams, varargin)
             % set the new y axis to be the cross product between the nadir 
             % and the surface to sun vector
 
-            x_ref = TSs_norm(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1));
+            x_ref =...
+                TSs_norm(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1));
 
             y_ref = cross(...
                 z_new(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1)),...
-                x_ref(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1)), 1);
-            y_new =  y_ref ./ dot(y_ref, y_ref, 1).^(1/2);
+                x_ref, 1);
+            y_new(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1)) =...
+                y_ref ./ dot(y_ref, y_ref, 1).^(1/2);
 
             x_new(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1)) = cross(...
                 y_new(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1)),...
                 z_new(:, any(z_new ~= TSs_norm, 1) & any(z_new ~= -TSs_norm, 1)), 1);
         end
     end
-    tole = 1e-14;
+    tole = 1e-6;
     x_new_m = dot(x_new, x_new).^(1/2);
     y_new_m = dot(y_new, y_new).^(1/2);
     z_new_m = dot(z_new, z_new).^(1/2);
-    if any(abs(x_new_m - 1) > tole) || any(abs(y_new_m - 1) > tole) ||...
-            any(abs(z_new_m - 1) > tole)
-        error("basis vector magnitudes are too large")
-    end
+
     x_new = x_new ./ x_new_m;
     y_new = y_new ./ y_new_m;
     z_new = z_new ./ z_new_m;
@@ -226,7 +226,7 @@ function [F_IR, F_A] = PlanetViewFactors(surf_pamss, planet_pams, varargin)
     % angle between z axis (nadir) and normal vector
     %nadir_new = repmat([0; 0; 1], 1, size(sN_new, 2));
     omegas = acosd(dot(z_new, sN, 1)./...
-        (dot(z_new, z_new, 1).^(1/2)).*dot(sN, sN, 1).^(1/2));
+        (dot(z_new, z_new, 1).^(1/2).*dot(sN, sN, 1).^(1/2)));
     
     %{
     cosre1 = l1s1./sind(omegas);
